@@ -983,7 +983,15 @@ grid-template-areas 属性：使用命名方式定义网格区域，需配合 gr
 
 这个属性的目的在于，使得网格可以通过命名进行划分区域，来形成命名区域，方便我们对子项进行不规则布局。其实就相当于excel 中的合并单元格操作。
 
-“合并单元格”的操作步骤：
+#### 1.“合并单元格”的操作步骤：
+
+```html
+<div class="main">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+</div>
+```
 
 1. 先在网格容器里边划分命名区域，使用属性：`grid-template-areas`
 
@@ -1005,5 +1013,625 @@ grid-template-areas 属性：使用命名方式定义网格区域，需配合 gr
         }
 ```
 
+2. 然后，在每个子项的当中使用属性 `grid-area: 名称;` 来声名当前的 item 属于哪一个区域
+
+```css
+.main div:nth-child(1){
+    grid-area: a1;
+}
+.main div:nth-child(2){
+    grid-area: a3;
+}
+```
+
+#### 2.grid-template 的简写方式
+
+> grid-template 的作用是用来简写 grid-template-areas 、grid-tempalte-rows 、grid-template-columns 这三个属性。
+
+使用方法：
+
+```css
+grid-template:
+            'a1 a1 a2' 1fr   /* 空格 行的大小 */
+            'a1 a1 a2' 1fr
+            'a3 a3 a3' 1fr
+            / 1fr 1fr 1fr  /* / 列的大小 */
+            ;
+```
+
+### 3.3 网格间隙及简写
+
+> 网格间隙：是用来设置元素行列之间的间隙大小。也就是说，它是 excel 当中的行间距和列间距。
+>
+> 采用的属性为：grid-row-gap(控制行间距)、grid-column-gap(控制列间距)、grid-gap(行列的简写形式)。
+
+为了能让其它容器(flex)也能使用行间距或者列间距，**推荐使用的属性写法为：row-gap、column-gap、gap。**
+
+旧的写法：
+
+```css
+grid-row-gap: 10px;
+grid-column-gap: 20px;
+grid-gap: 10px 20px;
+		  行    列	
+```
+
+新的写法，在 flex 容器中也可以使用
+
+```css
+row-gap: 10px;
+column-gap: 20px;
+gap: 10px 20px;
+```
+
+### 3.4 网格对齐方式及简写
+
+> 网格对齐方式包括：gird 容器中的元素与其所待在的单元格的对齐；整个单元格整体与 grid 容器的对齐。
+
+#### 3.4.1 对齐于单元格
+
+当容器中的单元格中的元素尺寸小于单元格的大小时，我们可以调整它与单元格之间的对齐关系：水平对齐（justify-items）、垂直对齐（align-items）。
+
+示例：
+
+```css
+.main{
+    width: 300px;
+    height: 300px;
+    background: skyblue;
+    display: grid;
+    grid-template-columns: repeat(3,100px);
+    grid-template-rows: repeat(3,100px);
+    /* 相对于单元格的对齐方式 */
+    justify-items: end;
+    align-items: center;
+    /* 对齐方式的简写 */
+    place-items: center end;
+}
+```
+
+#### 3.4.2 对齐于容器
+
+这种情况发生在，整个单元格的大小**小于**容器的大小，然后，做整体的单元格相对于容器的对齐方式。
+
+在这种情况下，对齐：
+
+```css
+.main{
+            width: 500px;
+            height: 500px;
+            background: skyblue;
+            display: grid;
+            grid-template-columns: repeat(3,100px);
+            grid-template-rows: repeat(3,100px);
+    	   /* 跟 flex 的 justify-content 的 5 个属性相同*/
+		   justify-content: space-around;
+            align-content: space-around;
+            /* 简写的方式： */
+    	    place-content: space-around center;
+        }
+        .main div{
+            background: pink;
+        }
+```
+
+### 3.5 显式网格和隐式网格
+
+> 判断标准：子项是否小于单元格
+>
+> 显式网格：容器当中的子项**小于**划分出来的单元格，就叫做显式网格。
+>
+> 隐式网格：容器当中的子项**大于**划分出来的单元格，就叫做隐式网格。
+
+显示网格就跟正常的网格布局一样，这里就不讨论了。
+
+#### 3.5.1 隐式网格：
+
+控制隐式网格的属性：grid-auto-flow(默认值：row)。意思就是说当子项大于单元格的数量的时候，我们将超出的按照行（另起新的一行）进行隐式的网格布局
+
+```css
+/* 声名隐式网格,默认值为 rows，行(hang)为隐式网格 */
+grid-auto-flow: rows;
+/* 控制行隐式表格的大小 */
+grid-auto-rows: 100px;
+```
+
+grid-auto-flow: columns; 
+
+这个就是当子项的数量大于单元格时，会按照列（另起新的一列）进行新的隐式网格布局。
+
+ ```css
+ /* 声名隐式网格,默认值为 rows，列为隐式网格 */
+ grid-auto-flow: column;
+ /* 控制列隐式表格的大小 */
+ grid-auto-columns: 100px;
+ ```
+
+#### 3.5.2 grid-auto-flow的紧密布局
+
+语法：
+
+```css
+ grid-auto-flow: row dense;
+```
+
+dense，表示容器要紧密排列。
+
+情景：
+
+1. 我们设置子项的起始位置
+
+```css
+.main div:nth-of-type(1){
+    /* 更改该元素的起始位置*/
+    grid-column-start: 2;
+}
+```
+
+<img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221103220007776.png" alt="image-20221103220007776" style="zoom:50%;" />
+
+使用紧密布局` grid-auto-flow: row dense;`后，效果如下：
+
+<img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221103220139043.png" alt="image-20221103220139043" style="zoom:50%;" />
+
+总结：
+
+1. grid-template-columns、grid-template-rows 属性控制 grid 容器当中的划分列、行
+2. grid-template-areas 属性用来将单元格进行命名
+3. grid-template 将是上面三个属性的简写
+4. grid-row-gap、grid-column-gap 属性用来控制单元格之间的行间距和列间距；grid-gap 属性是前两者的缩写形式
+5. justify-items、 align-items 属性用来控制元素于单元格的对齐方式；place-items 是二者的简写形式
+6. justify-content、 align-content 属性用来控制整个单元格于容器的的对齐方式；place-content 是二者的简写形式
+7. grid-auto-flow 属性来控制隐式网格是通过行隐式还是通过列隐式；grid-auto-rows 用来控制隐式网格的大小
+
+### 3.6 开始介绍子项-基于线的元素放置
+
+> 网格线：在划分单元格的时候，会出现几条网格线，网格线的默认值是根据数字来命名的，1、2、3、4......
+>
+> 水平网格线划分出行，垂直网格线划分出列。
+>
+> 正常情况下，n 行有 n + 1 根水平网格线；m 列有 m + 1 根垂直网格线
+
+#### 3.6.1 控制网格线的属性
+
+示例：
+
+```css
+.main div:nth-of-type(1){
+    box-sizing: border-box;
+    border: 1px solid pink;
+    background: violet;
+    
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 4;
+}
+```
+
+使用这几个属性，可以控制一个元素在单元格中的大小，虽然我们也可以通过网格命名来确定子项的位置。
+
+情景一：
+
+```html
+<div class="main">
+    <div>1</div>
+    <div>2</div>
+</div>
+```
+
+```css
+.main div:nth-of-type(1){
+    box-sizing: border-box;
+    border: 1px solid pink;
+    background: violet;
+    grid-column-start: 2;
+    grid-column-end: 3;
+    /* 不添加这两个属性时，它是 元素2 默认跟在元素1后边；当添加这两个属性时，元素1就相当于添加确定的位置了，元素2 还是会补全前面空出的网格，这是一种现象，无需理解 */
+    /*grid-row-start: 1;*/
+    /*grid-row-end: 2;*/
+}
+.main div:nth-of-type(2){
+    box-sizing: border-box;
+    border: 1px solid pink;
+    background: mediumaquamarine;
+}
+```
+
+span 写法
+
+```css
+grid-column-start: span x;
+grid-column-end: span x;
+grid-row-start: span x;
+grid-row-end: span x;
+```
+
+添加 span 的意思就是说，我们要占 x 个单元格，但是我们这个时候要有个参考系，必须要有个标准。所以我们必须要有一个属性来确定位置，一个属性表示所占区域的大小。通常，会这样写：
+
+```css
+grid-column-start: span x;
+grid-column-end: n;
+/* 或者 */
+grid-row-start: span x;
+grid-row-end: n;
+/* 或者 */
+grid-column-start: span 2;
+grid-row-end:  4;
+```
+
+#### 3.6.2 命名网格线
+
+示例：
+
+```css
+.main{
+    width: 300px;
+    height: 300px;
+    background: rosybrown;
+    display: grid;
+    /* 网格线的命名 */
+    grid-template-columns:[col1] 100px [col2] 100px [col3] 100px [col4];
+    grid-template-rows: [row1] 100px [row2] 100px [row3] 100px [row4];
+
+}
+.main div:nth-of-type(1){
+    box-sizing: border-box;
+    border: 1px solid pink;
+    background: violet;
+    grid-column-start: span 2;
+    /* 使用命名的网格线 */
+    grid-row-end:  row2;
+
+}
+```
+
+#### 3.6.3 简写形式
+
+```css
+/*
+	grid-column-start/grid-column-end
+*/
+grid-column: 2 / 3; 
+/*
+	grid-row-start/grid-row-end
+*/
+grid-row: 2 / 4;
+```
+
+#### 3.6.4 grid-area 属性
+
+> grid-area 属性可以配合容器的 grid-template-area 属性，来搭配命名区域。当然，他也可以表示grid-column-start、grid-column-end、grid-row-start、grid-row-end 属性
+
+```css
+grid-area: 2 / 2 / 4/3;
+```
+
+<img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221104145245127.png" alt="image-20221104145245127" style="zoom:50%;" />
+
+#### 3.6.5 justify-self、align-self 属性
+
+> 这两个属性可以帮助某一元素**相对于**其所在的单元格的对齐方式
+
+```css
+justify-self: center;
+align-self: center;
+```
+
+### 3.7 repeat 函数和 minmax 函数
+
+参考链接：http://ruanyifeng.com/blog/2019/03/grid-layout-tutorial.html
+
+### 3.8 grid 布局的案例
+
+#### 3.8.1 叠加布局
+
+> 什么叫做叠加布局？
+>
+> <img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221105075538805.png" alt="image-20221105075538805" style="zoom:50%;" />
+>
+> 可以这么理解：一张图上面叠加了多个元素。像这种情况，传统的做法可能是通过定位来制作。但如果使用 grid 布局的话，就比较灵活了。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>01-叠加布局</title>
+    <style>
+        .main{
+            width: 500px;
+            height: 500px;
+            display: grid;
+
+        }
+        img{
+            grid-area: 1 / 1 / 2/2;
+            width: 100%;
+            height: 100%;
+        }
+        span{
+            grid-area: 1 / 1 / 2/2;
+            justify-self: end;
+            margin: 5px;
+        }
+        p{
+            grid-area: 1 / 1 / 2/2;
+            align-self: end;
+            margin: 5px;
+            background: rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <img src="./1.jpeg" alt="">
+    <span>米雷</span>
+    <p>米雷的作品都好看。</p>
+</div>
+
+</body>
+</html>
+```
 
 
+
+#### 3.8.2 多种组合排列布局
+
+> 什么叫做多种组合排列布局？
+>
+> <img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221105083001833.png" alt="image-20221105083001833" style="zoom:50%;" />
+>
+> 像这种布局，使用传统的方式来做的话，能做，但忽然要是遇到方块的位置变动，修改起来会相当的麻烦。但如果使用 grid 布局调整起来就会很方便。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>11-多种组合排列布局</title>
+    <style>
+        .main{
+            width: 300px;
+            height: 300px;
+            background: skyblue;
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            grid-template-rows: repeat(3,1fr);
+            gap: 5px;
+        }
+        .main div{
+            background: pink;
+        }
+        .main div:nth-of-type(1){
+            grid-area: 2 / 2 / span 2 / span 2;
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <div>5</div>
+    <div>6</div>
+</div>
+
+</body>
+</html>
+```
+
+#### 3.8.3 栅格系统的设计
+
+> 栅格系统，我们可以通过预先的设定 class 类，该 class 类已经写好了对应的布局样式，使得采用这样类名的元素按照设定样式进行布局。
+
+我们现在要做的就是采用 grid 布局模拟栅格布局。我们采用的栅格布局为 12列。
+
+```css
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12-模拟栅格布局</title>
+    <style>
+        .row{
+            width: 100%;
+            background: skyblue;
+            display: grid;
+            grid-template-columns: repeat(12,1fr);
+            /* 默认一行 */
+            grid-template-rows: 50px;
+            /**/
+            grid-auto-rows: 50px;
+        }
+        .col-1{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 1;
+        }
+        .col-2{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 2;
+        }
+        .col-3{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 3;
+        }
+        .col-4{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 4;
+        }
+        .col-5{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 5;
+        }
+        .col-6{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 6;
+        }
+        .col-7{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 7;
+        }
+        .col-8{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 8;
+        }
+        .col-9{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 9;
+        }
+        .col-10{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 10;
+        }
+        .col-11{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 11;
+        }
+        .col-12{
+            
+            background: pink;
+            grid-area: auto / auto / auto /span 12;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="row">
+    <div class="col-1"></div>
+    <div class="col-7"></div>
+    <div class="col-11"></div>
+</div>
+
+</body>
+</html>
+```
+
+#### 3.8.4 行列自适应
+
+> 什么是行列自适应？
+>
+> <img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221105130130353.png" alt="image-20221105130130353" style="zoom:50%;" />
+>
+> 行的自适应有很多种方法，但是列的自适应，采用这种方法最简单。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>12--行列的自适应</title>
+    <style>
+        .main{
+            height: 300px;
+            background: skyblue;
+            display: grid;
+            grid-template-columns: 100px;
+            grid-template-rows: repeat(3,1fr);
+            grid-auto-flow: column;
+            grid-auto-columns: 100px;
+            gap: 5px;
+
+        }
+        .main div{
+            background: pink;
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <!--<div>5</div>-->
+    <!--<div>6</div>-->
+    <!--<div>7</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+    <!--<div>8</div>-->
+</div>
+
+</body>
+</html>
+```
+
+### 3.9 综合实练
+
+#### 3.9.1 百度热词风云榜
+
+> <img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221106105229075.png" alt="image-20221106105229075" style="zoom:50%;" />
+
+学到的东西：
+
+对于重复的样式，我们要做好划分，可以用单独的一个类进行表示。
+
+```css
+/*有三个渐变的样式，被我们抽离出来*/
+.theme1{
+    background-image: linear-gradient(#187fe6,#32aff2);
+    border: 1px solid #1b8ce1;
+}
+.theme2{
+    background-image: linear-gradient(#ea3861,#ff72ad);
+    border: 1px solid #cb4463;
+}
+.theme3{
+    background-image: linear-gradient(#dd6901,#eeab24);
+    border: 1px solid #d3972c;
+}
+```
+
+对于 a 标签的使用：
+
+因为之前所学的是行内元素中是不能嵌套块级元素的，但是我们这里采用了 a 标签嵌套了块级元素却没有任何事，原因在于https://coding.imooc.com/learn/questiondetail/vQW1lYEpKnWPyE9A.html
+
+#### 3.9.2 小米商品导航菜单
+
+<img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221106141526491.png" alt="image-20221106141526491" style="zoom:50%;" />
+
+<img src="D:\12.学习项目\vue\CSS\笔记\images\image-20221106152737600.png" alt="image-20221106152737600" style="zoom:50%;" />
+
+学到的东西：
+
+1. 鼠标悬浮后边跟随一个菜单项的效果取决于 :
+
+   ```css
+   .nav > li:hover .nav-menu {
+       display: grid;
+   }
+   ```
+
+   再配合相对定位和绝对定位，因为 li:hover 此时只有一个的鼠标悬浮状态，故.nav-menu也会跟随。
+
+   如果忘记，可参考源代码：5.0/综合实战/02-小米商品导航菜单.html
+
+   1fr 可以占用 grid 布局当中的剩余空间，这个用的好，可以很节约时间。
+
+   
